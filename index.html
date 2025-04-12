@@ -30,22 +30,21 @@
         emitevents="true"
         cursor="fuse: false; rayOrigin: mouse;"
       >
-        <!-- 第一個模型 -->
+        <!-- 第一個模型（播放一次） -->
         <a-entity
           id="model1-entity"
           gltf-model="#model1"
           scale="0.4 0.4 0.4"
           rotation="-90 0 0"
-          animation-mixer
+          animation-mixer="clip: *; loop: once"
           class="clickable"
         ></a-entity>
 
-        <!-- 第二個模型，初始隱藏 -->
+        <!-- 第二個模型（初始隱藏） -->
         <a-entity
           id="model2-entity"
           gltf-model="#model2"
           scale="0.4 0.4 0.4"
-          rotation="0 180 0"
           animation-mixer
           visible="false"
           class="clickable"
@@ -62,10 +61,17 @@
           const model1 = document.querySelector("#model1-entity");
           const model2 = document.querySelector("#model2-entity");
 
+          // 監聽第一個模型的動畫結束
           model1.addEventListener("animation-finished", () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
           });
+
+          // 備用保險機制：5秒後強制切換
+          setTimeout(() => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          }, 5000);
         },
       });
 
