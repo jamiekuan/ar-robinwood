@@ -54,16 +54,16 @@
           gesture-handler
         ></a-entity>
 
-        <!-- 白底黑字的文字，位於模型前方 -->
+        <!-- 半透明白底黑字的文字 -->
         <a-entity position="0 1.2 0" rotation="-90 0 0">
-          <a-plane color="#FFFFFF" width="2.2" height="0.5"></a-plane>
+          <a-plane color="#FFFFFF" width="2.2" height="0.5" opacity="0.5"></a-plane>
           <a-text
             id="dialogue-text"
             value="Please wait..."
             align="center"
             color="#000000"
             width="2"
-            position="0 0 0.01"
+            position="0 0 0.02"
           ></a-text>
         </a-entity>
       </a-marker>
@@ -71,7 +71,7 @@
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- 自動切換動畫 + 自動播放文字 -->
+    <!-- 控制模型與文字自動切換 -->
     <script>
       AFRAME.registerComponent("auto-animate", {
         init: function () {
@@ -88,7 +88,7 @@
           ];
           let currentLine = 0;
 
-          // 切換對話
+          // 自動更新對話文字
           function updateDialogue() {
             if (currentLine < dialogue.length) {
               text.setAttribute("value", dialogue[currentLine]);
@@ -97,19 +97,20 @@
             }
           }
 
-          // 模型1播完自動切換模型2
+          // 模型播放完自動切換
           model1.addEventListener("animation-finished", () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
           });
 
-          // 備案：強制5秒切換模型
+          // 備用：5 秒後強制切換模型
           setTimeout(() => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
           }, 5000);
 
-          updateDialogue(); // 開始播放對話
+          // 啟動對話輪播
+          updateDialogue();
         },
       });
 
