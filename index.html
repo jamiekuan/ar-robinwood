@@ -19,7 +19,8 @@
     >
       <a-assets>
         <a-asset-item id="model1" src="asset.gltf"></a-asset-item>
-        <a-asset-item id="model2" src="robin_2/scene.gltf"></a-asset-item>
+        <a-asset-item id="model2" src="robin_hood/scene.gltf"></a-asset-item>
+        <a-asset-item id="model3" src="robin_2/scene.gltf"></a-asset-item>
       </a-assets>
 
       <a-marker
@@ -30,7 +31,7 @@
         emitevents="true"
         cursor="fuse: false; rayOrigin: mouse;"
       >
-        <!-- 第一個模型（播放一次） -->
+        <!-- 模型 1 -->
         <a-entity
           id="model1-entity"
           gltf-model="#model1"
@@ -41,10 +42,22 @@
           gesture-handler
         ></a-entity>
 
-        <!-- 第二個模型（初始隱藏） -->
+        <!-- 模型 2：robin_hood -->
         <a-entity
           id="model2-entity"
           gltf-model="#model2"
+          scale="0.4 0.4 0.4"
+          rotation="-90 0 0"
+          animation-mixer="clip: *; loop: once"
+          visible="false"
+          class="clickable"
+          gesture-handler
+        ></a-entity>
+
+        <!-- 模型 3：原本的 robin_2 -->
+        <a-entity
+          id="model3-entity"
+          gltf-model="#model3"
           scale="0.4 0.4 0.4"
           rotation="-65 0 0"
           animation-mixer
@@ -56,7 +69,7 @@
         <!-- 互動文字 -->
         <a-text
           id="dialogue-text"
-          value="你好，歡迎來到AR世界！"
+          value="Congradulations!"
           position="0 1.2 0"
           rotation="-90 0 0"
           align="center"
@@ -69,19 +82,19 @@
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- 控制動畫與文字切換 -->
     <script>
-      AFRAME.registerComponent("auto-switch-model", {
+      AFRAME.registerComponent("auto-switch-models", {
         init: function () {
           const model1 = document.querySelector("#model1-entity");
           const model2 = document.querySelector("#model2-entity");
+          const model3 = document.querySelector("#model3-entity");
           const text = document.querySelector("#dialogue-text");
 
           const dialogue = [
-            "Congradulation! ",
+            "Congradulations!",
             "You've found all exhibitions today,",
             "but...",
-            "I won't stop stealing staffs, ",
+            "I won't stop stealing staffs,",
             "as I'm Robinwood!"
           ];
           let currentLine = 0;
@@ -93,26 +106,36 @@
             }
           };
 
-          // 點擊模型或文字會切換下一句話
-          model1.addEventListener("click", advanceDialogue);
-          model2.addEventListener("click", advanceDialogue);
-          text.addEventListener("click", advanceDialogue);
+          // 點任一模型或文字可換句
+          [model1, model2, model3, text].forEach(el =>
+            el.addEventListener("click", advanceDialogue)
+          );
 
-          // 第一個動畫結束 → 換模型
+          // 播放結束後依序顯示下一個模型
           model1.addEventListener("animation-finished", () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
           });
 
-          // 備案：5秒後強制切換
+          model2.addEventListener("animation-finished", () => {
+            model2.setAttribute("visible", false);
+            model3.setAttribute("visible", true);
+          });
+
+          // 備案：如果動畫沒觸發，強制 5s 換模型
           setTimeout(() => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
           }, 5000);
+
+          setTimeout(() => {
+            model2.setAttribute("visible", false);
+            model3.setAttribute("visible", true);
+          }, 10000);
         },
       });
 
-      document.querySelector("a-scene").setAttribute("auto-switch-model", "");
+      document.querySelector("a-scene").setAttribute("auto-switch-models", "");
     </script>
   </body>
 </html>
