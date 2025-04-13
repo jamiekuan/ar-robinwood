@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8" />
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
@@ -30,7 +31,7 @@
         emitevents="true"
         cursor="fuse: false; rayOrigin: mouse;"
       >
-        <!-- 模型區 -->
+        <!-- 第一個模型 -->
         <a-entity
           id="model1-entity"
           gltf-model="#model1"
@@ -41,51 +42,45 @@
           gesture-handler
         ></a-entity>
 
+        <!-- 第二個模型 -->
         <a-entity
           id="model2-entity"
           gltf-model="#model2"
           scale="0.4 0.4 0.4"
           rotation="-65 0 0"
+          animation-mixer
           visible="false"
           class="clickable"
           gesture-handler
         ></a-entity>
 
-        <!-- 背景文字框（白底） -->
-        <a-plane
-          position="0 1.2 0.01"
-          rotation="-90 0 0"
-          width="2"
-          height="0.5"
-          color="#FFFFFF"
-          opacity="0.7"
-        ></a-plane>
-
-        <!-- 對話文字（黑字） -->
-        <a-text
-          id="dialogue-text"
-          value="Please wait..."
-          position="0 1.2 0.02"
-          rotation="-90 0 0"
-          align="center"
-          color="#000000"
-          width="2"
-        ></a-text>
+        <!-- 白底黑字的文字，位於模型前方 -->
+        <a-entity position="0 1.2 0" rotation="-90 0 0">
+          <a-plane color="#FFFFFF" width="2.2" height="0.5"></a-plane>
+          <a-text
+            id="dialogue-text"
+            value="Please wait..."
+            align="center"
+            color="#000000"
+            width="2"
+            position="0 0 0.01"
+          ></a-text>
+        </a-entity>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- 控制動畫與對話 -->
+    <!-- 自動切換動畫 + 自動播放文字 -->
     <script>
-      AFRAME.registerComponent("auto-behavior", {
+      AFRAME.registerComponent("auto-animate", {
         init: function () {
           const model1 = document.querySelector("#model1-entity");
           const model2 = document.querySelector("#model2-entity");
           const text = document.querySelector("#dialogue-text");
 
           const dialogue = [
-            "Congratulations!",
+            "Congratulation!",
             "You've found all exhibitions today,",
             "but...",
             "I won't stop stealing staffs,",
@@ -93,43 +88,32 @@
           ];
           let currentLine = 0;
 
-          // 對話逐句播放
-          const startDialogueLoop = () => {
-            setInterval(() => {
-              if (currentLine < dialogue.length - 1) {
-                currentLine++;
-                text.setAttribute("value", dialogue[currentLine]);
-              }
-            }, 3000); // 每 3 秒更新一句
-          };
+          // 切換對話
+          function updateDialogue() {
+            if (currentLine < dialogue.length) {
+              text.setAttribute("value", dialogue[currentLine]);
+              currentLine++;
+              setTimeout(updateDialogue, 3000);
+            }
+          }
 
-          // 模型動畫完成 → 切換到第二個模型並啟動動畫
+          // 模型1播完自動切換模型2
           model1.addEventListener("animation-finished", () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
-
-            // 確保動畫播放觸發
-            model2.removeAttribute("animation-mixer");
-            model2.setAttribute("animation-mixer", "");
-
-            // 啟動對話
-            startDialogueLoop();
           });
 
-          // 備案：5 秒後自動切換（若 animation-finished 未觸發）
+          // 備案：強制5秒切換模型
           setTimeout(() => {
-            if (model1.getAttribute("visible")) {
-              model1.setAttribute("visible", false);
-              model2.setAttribute("visible", true);
-              model2.removeAttribute("animation-mixer");
-              model2.setAttribute("animation-mixer", "");
-              startDialogueLoop();
-            }
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
           }, 5000);
+
+          updateDialogue(); // 開始播放對話
         },
       });
 
-      document.querySelector("a-scene").setAttribute("auto-behavior", "");
+      document.querySelector("a-scene").setAttribute("auto-animate", "");
     </script>
   </body>
 </html>
