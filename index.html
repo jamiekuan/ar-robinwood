@@ -30,7 +30,7 @@
         emitevents="true"
         cursor="fuse: false; rayOrigin: mouse;"
       >
-        <!-- 第一個模型 -->
+        <!-- 第一個模型（播放一次） -->
         <a-entity
           id="model1-entity"
           gltf-model="#model1"
@@ -41,7 +41,7 @@
           gesture-handler
         ></a-entity>
 
-        <!-- 第二個模型 -->
+        <!-- 第二個模型（初始隱藏） -->
         <a-entity
           id="model2-entity"
           gltf-model="#model2"
@@ -69,6 +69,7 @@
       <a-entity camera></a-entity>
     </a-scene>
 
+    <!-- 控制動畫與文字切換 -->
     <script>
       AFRAME.registerComponent("auto-switch-model", {
         init: function () {
@@ -77,7 +78,7 @@
           const text = document.querySelector("#dialogue-text");
 
           const dialogue = [
-            "Congratulation!",
+            "Congratulations!",
             "You've found all exhibitions today,",
             "but...",
             "I won't stop stealing staffs,",
@@ -86,23 +87,33 @@
           let currentLine = 0;
 
           const advanceDialogue = () => {
-            // 切換對話文字
-            currentLine++;
-            if (currentLine < dialogue.length) {
+            if (currentLine < dialogue.length - 1) {
+              currentLine++;
               text.setAttribute("value", dialogue[currentLine]);
-            }
-
-            // 當切換到第2句話時換模型（你可根據需求改變條件）
-            if (currentLine === 1) {
-              model1.setAttribute("visible", false);
-              model2.setAttribute("visible", true);
+            } else {
+              // 到最後一句後停住（移除點擊）
+              model1.removeEventListener("click", advanceDialogue);
+              model2.removeEventListener("click", advanceDialogue);
+              text.removeEventListener("click", advanceDialogue);
             }
           };
 
-          // 點擊文字與模型都會觸發對話切換
-          text.addEventListener("click", advanceDialogue);
+          // 點擊模型或文字會切換下一句話
           model1.addEventListener("click", advanceDialogue);
           model2.addEventListener("click", advanceDialogue);
+          text.addEventListener("click", advanceDialogue);
+
+          // 第一個動畫結束 → 換模型
+          model1.addEventListener("animation-finished", () => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          });
+
+          // 備案：5秒後強制切換模型
+          setTimeout(() => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          }, 5000);
         },
       });
 
