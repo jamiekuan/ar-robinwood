@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8" />
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
@@ -30,7 +31,7 @@
         emitevents="true"
         cursor="fuse: false; rayOrigin: mouse;"
       >
-        <!-- 第一個模型（播放一次） -->
+        <!-- 第一個模型 -->
         <a-entity
           id="model1-entity"
           gltf-model="#model1"
@@ -41,43 +42,45 @@
           gesture-handler
         ></a-entity>
 
-        <!-- 第二個模型（初始隱藏） -->
+        <!-- 第二個模型 -->
         <a-entity
           id="model2-entity"
           gltf-model="#model2"
           scale="0.4 0.4 0.4"
           rotation="-65 0 0"
+          animation-mixer
           visible="false"
           class="clickable"
           gesture-handler
         ></a-entity>
 
-        <!-- 對話文字 -->
-        <a-text
-          id="dialogue-text"
-          value="Please click the words."
-          position="0 1.2 0"
-          rotation="-90 0 0"
-          align="center"
-          color="#FFFFFF"
-          width="2"
-          class="clickable"
-        ></a-text>
+        <!-- 白底黑字的文字，位於模型前方 -->
+        <a-entity position="0 1.2 0" rotation="-90 0 0">
+          <a-plane color="#FFFFFF" width="2.2" height="0.5"></a-plane>
+          <a-text
+            id="dialogue-text"
+            value="Please wait..."
+            align="center"
+            color="#000000"
+            width="2"
+            position="0 0 0.01"
+          ></a-text>
+        </a-entity>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- 控制動畫與文字切換 -->
+    <!-- 自動切換動畫 + 自動播放文字 -->
     <script>
-      AFRAME.registerComponent("auto-switch-model", {
+      AFRAME.registerComponent("auto-animate", {
         init: function () {
           const model1 = document.querySelector("#model1-entity");
           const model2 = document.querySelector("#model2-entity");
           const text = document.querySelector("#dialogue-text");
 
           const dialogue = [
-            "Congratulations!",
+            "Congratulation!",
             "You've found all exhibitions today,",
             "but...",
             "I won't stop stealing staffs,",
@@ -85,34 +88,32 @@
           ];
           let currentLine = 0;
 
-          const advanceDialogue = () => {
-            if (currentLine < dialogue.length - 1) {
-              currentLine++;
+          // 切換對話
+          function updateDialogue() {
+            if (currentLine < dialogue.length) {
               text.setAttribute("value", dialogue[currentLine]);
+              currentLine++;
+              setTimeout(updateDialogue, 3000);
             }
-          };
+          }
 
-          // 切換到第二個模型並播放動畫
-          const showModel2 = () => {
+          // 模型1播完自動切換模型2
+          model1.addEventListener("animation-finished", () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
+          });
 
-            // 重新啟動動畫播放（避免 invisible 時失效）
-            model2.removeAttribute("animation-mixer");
-            model2.setAttribute("animation-mixer", "");
-          };
+          // 備案：強制5秒切換模型
+          setTimeout(() => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          }, 5000);
 
-          // 當第一個模型動畫播放完畢，切換到第二個模型
-          model1.addEventListener("animation-finished", showModel2);
-
-          // 點擊模型或文字切換對話
-          model1.addEventListener("click", advanceDialogue);
-          model2.addEventListener("click", advanceDialogue);
-          text.addEventListener("click", advanceDialogue);
+          updateDialogue(); // 開始播放對話
         },
       });
 
-      document.querySelector("a-scene").setAttribute("auto-switch-model", "");
+      document.querySelector("a-scene").setAttribute("auto-animate", "");
     </script>
   </body>
 </html>
