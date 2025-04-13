@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
   <head>
@@ -47,7 +48,7 @@
           gltf-model="#model2"
           scale="0.4 0.4 0.4"
           rotation="-65 0 0"
-          animation-mixer="clip: *; loop: once"
+          animation-mixer
           visible="false"
           class="clickable"
           gesture-handler
@@ -69,74 +70,50 @@
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- 改為頁面載入完成後再執行 -->
+    <!-- 控制動畫與文字切換 -->
     <script>
-      window.addEventListener("load", () => {
-        AFRAME.registerComponent("auto-switch-model", {
-          init: function () {
-            const model1 = document.querySelector("#model1-entity");
-            const model2 = document.querySelector("#model2-entity");
-            const text = document.querySelector("#dialogue-text");
+      AFRAME.registerComponent("auto-switch-model", {
+        init: function () {
+          const model1 = document.querySelector("#model1-entity");
+          const model2 = document.querySelector("#model2-entity");
+          const text = document.querySelector("#dialogue-text");
 
-            const dialogue = [
-              "Congratulation!",
-              "You've found all exhibitions today,",
-              "but...",
-              "I won't stop stealing staffs,",
-              "as I'm Robinwood!"
-            ];
-            let currentLine = 0;
-            let model2PlayCount = 0;
-            const maxModel2Loops = 3;
+          const dialogue = [
+            "Congradulation! ",
+            "You've found all exhibitions today,",
+            "but...",
+            "I won't stop stealing staffs, ",
+            "as I'm Robinwood!"
+          ];
+          let currentLine = 0;
 
-            const advanceDialogue = () => {
-              if (currentLine < dialogue.length - 1) {
-                currentLine++;
-              } else {
-                currentLine = 0;
-              }
+          const advanceDialogue = () => {
+            if (currentLine < dialogue.length - 1) {
+              currentLine++;
               text.setAttribute("value", dialogue[currentLine]);
-            };
+            }
+          };
 
-            // 點擊模型或文字會切換下一句話
-            model1.addEventListener("click", advanceDialogue);
-            model2.addEventListener("click", advanceDialogue);
-            text.addEventListener("click", advanceDialogue);
+          // 點擊模型或文字會切換下一句話
+          model1.addEventListener("click", advanceDialogue);
+          model2.addEventListener("click", advanceDialogue);
+          text.addEventListener("click", advanceDialogue);
 
-            // 初始 5 秒後切換到第二個模型
-            setTimeout(() => {
-              model1.setAttribute("visible", false);
-              model2.setAttribute("visible", true);
-            }, 5000);
+          // 第一個動畫結束 → 換模型
+          model1.addEventListener("animation-finished", () => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          });
 
-            // 當第二模型動畫播放結束
-            model2.addEventListener("animation-finished", () => {
-              model2PlayCount++;
-
-              if (model2PlayCount < maxModel2Loops) {
-                // 播放下一次（透過重設 animation-mixer）
-                model2.removeAttribute("animation-mixer");
-                void model2.offsetWidth; // 強制 reflow
-                model2.setAttribute("animation-mixer", "clip: *; loop: once");
-              } else {
-                // 回到第一模型
-                model2PlayCount = 0;
-                model2.setAttribute("visible", false);
-                model1.setAttribute("visible", true);
-
-                // 播放一次後再回第二模型（循環）
-                setTimeout(() => {
-                  model1.setAttribute("visible", false);
-                  model2.setAttribute("visible", true);
-                  model2.setAttribute("animation-mixer", "clip: *; loop: once");
-                }, 5000);
-              }
-            });
-          },
-        });
-
-        document.querySelector("a-scene").setAttribute("auto-switch-model", "");
+          // 備案：5秒後強制切換
+          setTimeout(() => {
+            model1.setAttribute("visible", false);
+            model2.setAttribute("visible", true);
+          }, 5000);
+        },
       });
+
+      document.querySelector("a-scene").setAttribute("auto-switch-model", "");
     </script>
   </body>
 </html>
