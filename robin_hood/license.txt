@@ -1,0 +1,11 @@
+Model Information:
+* title:	Robin Hood
+* source:	https://sketchfab.com/3d-models/robin-hood-9fbb193cd64e462a8e15366be15003f4
+* author:	matheussantos.2301 (https://sketchfab.com/matheussantos.2301)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Robin Hood" (https://sketchfab.com/3d-models/robin-hood-9fbb193cd64e462a8e15366be15003f4) by matheussantos.2301 (https://sketchfab.com/matheussantos.2301) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
