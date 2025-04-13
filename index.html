@@ -89,34 +89,26 @@
             if (currentLine < dialogue.length - 1) {
               currentLine++;
               text.setAttribute("value", dialogue[currentLine]);
-            } else {
-              // 到最後一句後停用點擊事件
-              model1.removeEventListener("click", advanceDialogue);
-              model2.removeEventListener("click", advanceDialogue);
-              text.removeEventListener("click", advanceDialogue);
             }
           };
 
-          // 切換顯示第二個模型，並啟動動畫
+          // 切換到第二個模型並播放動畫
           const showModel2 = () => {
             model1.setAttribute("visible", false);
             model2.setAttribute("visible", true);
 
-            // 重新觸發 animation-mixer 讓動畫播放
+            // 重新啟動動畫播放（避免 invisible 時失效）
             model2.removeAttribute("animation-mixer");
             model2.setAttribute("animation-mixer", "");
           };
 
-          // 點擊事件註冊
+          // 當第一個模型動畫播放完畢，切換到第二個模型
+          model1.addEventListener("animation-finished", showModel2);
+
+          // 點擊模型或文字切換對話
           model1.addEventListener("click", advanceDialogue);
           model2.addEventListener("click", advanceDialogue);
           text.addEventListener("click", advanceDialogue);
-
-          // 第一個模型動畫結束後切換
-          model1.addEventListener("animation-finished", showModel2);
-
-          // 備用：五秒後強制切換
-          setTimeout(showModel2, 5000);
         },
       });
 
