@@ -59,11 +59,12 @@
           <a-plane color="#FFFFFF" width="2.2" height="0.5" opacity="0.5"></a-plane>
           <a-text
             id="dialogue-text"
-            value="Please wait..."
+            value="Congratulation!"
             align="center"
             color="#000000"
             width="2"
-            position="0 0 0.02"
+            rotation="-90 0 0"
+            position="0 1.2 0.02"
           ></a-text>
         </a-entity>
       </a-marker>
@@ -80,11 +81,12 @@
           const text = document.querySelector("#dialogue-text");
 
           const dialogue = [
-            "Congratulation!",
+            "I'm Robin Hood",
             "You've found all exhibitions today,",
             "but...",
-            "I won't stop stealing staffs,",
-            "as I'm Robinwood!"
+            "I won't stop stealing staffs!",
+            "HA HA HA!",
+            "To be continued..."
           ];
           let currentLine = 0;
 
