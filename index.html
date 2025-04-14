@@ -92,7 +92,7 @@
             if (currentLine < dialogue.length) {
               text.setAttribute("value", dialogue[currentLine]);
               currentLine++;
-              setTimeout(updateDialogue, 3000); // 每3秒換下一句
+              setTimeout(updateDialogue, currentLine === 1 ? 6000 : 3000); // 第一句6秒，之後每3秒換下一句 
             }
           }
 
